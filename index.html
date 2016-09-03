@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="author" content="Gary Keeble" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Betaflight - Rate Calculator</title>
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/bootstrap-theme.min.css">
+    <link type="text/css" rel="stylesheet" href="css/expochart.css" media="all" />
+    <link rel="icon" type="image/png" href="images/icon-128.png">
+</head>
+<body>
+<!-- Navigation Bar -->
+    <nav class="navbar navbar-inverse navbar-static-top" role="navigation">
+        <div class="container header-pane">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                    <span class="sr-only">Toggle navigation</span> <span class="icon-bar"></span> <span class="icon-bar"></span> <span class="icon-bar"></span>
+                </button>
+                <div class="navbar-logo">
+                    <div>
+                        <img src="./images/bf_logo_white.svg" class="navbar-brand"/>
+                        <span>Rate&nbspCalculator</span>
+                    </div>
+                    <a class="navbar-brand log-filename" html="#"></a>
+                </div>
+            </div>
+        </div>
+    </nav>
+    <div class="container-fluid main-pane">
+        <table class="rates">
+            <tr>
+                <th class="col-md-3">Old Rates</th>
+                <th class="col-md-6">Chart</th>
+                <th class="col-md-3">New Rates (RC12)</th>
+            </tr>
+            <tr>
+                <td>
+                    <table class="old">
+                        <tr>
+                            <td>
+                                <span>rcRate</span><input type="number" id="rcRate-old" step="1" min="0" max="255" />
+                                <input type="range" id="rcRate-old-slider" value="100" min="0" max="255" step="1" title=""/>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <span>rcExpo</span><input type="number" id="rcExpo-old" step="1" min="0" max="100" />
+                                <input type="range" id="rcExpo-old-slider" value="0" min="0" max="100" step="1" title=""/>
+                            </td>
+                        <tr>
+                            <td>
+                                <span>Super Expo Rate</span><input type="number" id="axisRate-old" step="1" min="0" max="200" />
+                                <input type="range" id="axisRate-old-slider" value="0" min="0" max="200" step="1" title=""/>
+                            </td>
+                        </tr>
+                        <tr><td><label><input id="superExpoActive-old" class="ios-switch" type="checkbox"/><div><div></div></div><span>Super Expo</span></label></td></tr>
+                    </table>
+                </td>
+                <td>
+                    <div class="expochart">
+                        <img src="./images/paper.jpg"/>
+                        <canvas id="graphCanvas"></canvas>
+                    </div>
+                </td>
+                <td>
+                    <table class="new">
+                        <tr>
+                            <td>
+                                <select id="controller-new">
+                                    <option value="0">Legacy</option>
+                                    <option value="1" >Betaflight</option>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <span>rcRate</span><input type="number" id="rcRate-new" step="1" min="0" max="255" />
+                                <input type="range" id="rcRate-new-slider" value="100" min="0" max="255" step="1" title=""/>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <span>rcExpo</span><input type="number" id="rcExpo-new" step="1" min="0" max="100" />
+                                <input type="range" id="rcExpo-new-slider" value="0" min="0" max="100" step="1" title=""/>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <span>sRate</span><input type="number" id="axisRate-new" step="1" min="0" max="200" />
+                                <input type="range" id="axisRate-new-slider" value="0" min="0" max="200" step="1" title=""/>
+                            </td>
+                        </tr>
+                        <tr><td><span>rcExpoPwr</span><input type="number" id="rcExpoPwr-new" step="1" min="1" max="6.0" /></td></tr>
+                    </table>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2">
+                    <table class="common">
+                        <tr>
+							<td>
+							</td>
+                            <td>
+                                <span>rcData</span><input type="number" id="rcData" step="1" min="1000" max="2000" />
+                                <input type="range" id="rcData-slider" value="1500" min="1000" max="2000" step="1" title=""/>
+                            </td>
+                        	<td>
+                        		<span>deadband</span><input type="number" id="deadband" step="1" min="0" max="500" />
+                        		<span>midrc</span><input type="number" id="midrc" step="1" min="1000" max="2000" />
+                        	</td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div id="status-bar">
+        <div>
+            <span class="viewer-version">Betaflight 3.0.0 RC12</span>
+        </div>
+    </div>
+
+</body>
+
+<script type="text/javascript" src="./js/libraries/jquery-2.1.4.min.js"></script>
+<script type="text/javascript" src="./js/libraries/jquery-ui-1.11.4.min.js"></script>
+<script type="text/javascript" src="./js/libraries/expochart.js"></script>
+
+</html>
