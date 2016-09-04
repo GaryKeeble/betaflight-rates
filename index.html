@@ -104,7 +104,14 @@
 							</td>
                             <td>
                                 <span>rcData</span><input type="number" id="rcData" step="1" min="1000" max="2000" />
-                                <input type="range" id="rcData-slider" value="1500" min="1000" max="2000" step="1" title=""/>
+                                <input type="range" id="rcData-slider" value="1500" min="1000" max="2000" step="1" list="rcDataTicks" title=""/>
+                                <datalist id="rcDataTicks">
+                                    <option>1000</option>
+                                    <option>1250</option>
+                                    <option>1500</option>
+                                    <option>1750</option>
+                                    <option>2000</option>
+                                </datalist>
                             </td>
                         	<td>
                         		<span>deadband</span><input type="number" id="deadband" step="1" min="0" max="500" />
