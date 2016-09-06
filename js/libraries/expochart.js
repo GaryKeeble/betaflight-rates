@@ -241,7 +241,7 @@ function ExpoChart(canvas, rcData, curves, deadband, midrc) {
 
                 if (curve.rcExpo) {
                     var expof = curve.rcExpo / 100.0;
-                    rcCommandf = rcCommandf * (expof * (Math.pow(rcInput, curve.rcExpoPwr)) + rcInput * (1 - expof));
+                    rcCommandf = rcCommandf * Math.pow(rcInput, curve.rcExpoPwr) * expof + rcCommandf * (1 - expof);
                 }
 
                 angleRate = 200.0 * rcRate * rcCommandf;
