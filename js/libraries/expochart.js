@@ -54,7 +54,6 @@ function ChartTest() {
             rcExpoSlider:       $('#rcExpo-new-slider'),
             axisRate:           $('#axisRate-new'),
             axisRateSlider:     $('#axisRate-new-slider'),
-            rcExpoPwr:          $('#rcExpoPwr-new'),
             controller:         $('#controller-new'),
         },
         commonElements = {
@@ -81,7 +80,6 @@ function ChartTest() {
         newElements.rcRateSlider.val(curves[1].rcRate);
         newElements.rcExpo.val(curves[1].rcExpo);
         newElements.rcExpoSlider.val(curves[1].rcExpo);
-        newElements.rcExpoPwr.val(curves[1].rcExpoPwr);
         newElements.axisRate.val(curves[1].axisRate);
         newElements.axisRateSlider.val(curves[1].axisRate);
         newElements.controller.val(curves[1].controller);
@@ -104,7 +102,6 @@ function ChartTest() {
 
         curves[1].rcRate = parseInt(newElements.rcRate.val());
         curves[1].rcExpo = parseInt(newElements.rcExpo.val());
-        curves[1].rcExpoPwr = parseInt(newElements.rcExpoPwr.val());
         curves[1].axisRate = parseInt(newElements.axisRate.val());
         curves[1].controller = parseInt(newElements.controller.val());
 
@@ -218,6 +215,7 @@ function ExpoChart(canvas, rcData, curves, deadband, midrc) {
         if (curve.version >= 3.0) {
 
             const RC_RATE_INCREMENTAL = 14.54;
+            const RC_EXPO_POWER = 3;
 
             var rcInput;
             var that = this;
@@ -241,7 +239,7 @@ function ExpoChart(canvas, rcData, curves, deadband, midrc) {
 
                 if (curve.rcExpo) {
                     var expof = curve.rcExpo / 100.0;
-                    rcCommandf = rcCommandf * Math.pow(rcInput, curve.rcExpoPwr) * expof + rcCommandf * (1 - expof);
+                    rcCommandf = rcCommandf * Math.pow(rcInput, RC_EXPO_POWER) * expof + rcCommandf * (1 - expof);
                 }
 
                 angleRate = 200.0 * rcRate * rcCommandf;
