@@ -68,6 +68,14 @@ function ChartTest() {
     $(document).ready(function() {
 
         // Populate the default values
+        convertLocaltoUI();
+
+        expoChart = new ExpoChart(canvas, rcData, curves, deadband, midrc);
+
+	});
+
+    function convertLocaltoUI() {
+
         oldElements.rcRate.val(curves[0].rcRate);
         oldElements.rcRateSlider.val(curves[0].rcRate);
         oldElements.rcExpo.val(curves[0].rcExpo);
@@ -89,9 +97,7 @@ function ChartTest() {
         commonElements.deadband.val(deadband);
         commonElements.midrc.val(midrc);
 
-        expoChart = new ExpoChart(canvas, rcData, curves, deadband, midrc);
-
-	});
+    }
 
     function convertUItoLocal() {
 
@@ -303,10 +309,12 @@ function ExpoChart(canvas, rcData, curves, deadband, midrc) {
 
 		rcCommandMaxDegS = Math.max(
 		                    Math.ceil(rcCommandRawToDegreesPerSecond(2000, curves[0], midrc, deadband)/200) * 200,
-                            Math.ceil(rcCommandRawToDegreesPerSecond(2000, curves[1], midrc, deadband)/200) * 200
+                            -Math.floor(rcCommandRawToDegreesPerSecond(1000, curves[0], midrc, deadband)/200) * 200,
+                            Math.ceil(rcCommandRawToDegreesPerSecond(2000, curves[1], midrc, deadband)/200) * 200,
+                            -Math.floor(rcCommandRawToDegreesPerSecond(1000, curves[1], midrc, deadband)/200) * 200
                             );
-		rcCommandMinDegS = -rcCommandMaxDegS ;
-		
+		rcCommandMinDegS = -rcCommandMaxDegS;
+
 		canvasHeightScale = canvas.height / Math.abs(rcCommandMaxDegS - rcCommandMinDegS);
         rcCommandMaxDegS += ' deg/s';
         rcCommandMinDegS += ' deg/s';
@@ -318,7 +326,7 @@ function ExpoChart(canvas, rcData, curves, deadband, midrc) {
     ctx.translate(0.5, 0.5);
 
     //Draw an origin line for a graph (at the origin and spanning the window)
-    function drawAxisLines() {
+    function drawAxisLines(midrc) {
         ctx.strokeStyle = axisColor;
         ctx.lineWidth = 1;
 
@@ -330,8 +338,8 @@ function ExpoChart(canvas, rcData, curves, deadband, midrc) {
         
         // Vertical
 		ctx.beginPath();
-        ctx.moveTo(0, -canvas.height/2);
-        ctx.lineTo(0, canvas.height/2);        
+        ctx.moveTo((midrc-1500), -canvas.height/2);
+        ctx.lineTo((midrc-1500), canvas.height/2);
         ctx.stroke();
 
     };
@@ -350,7 +358,7 @@ function ExpoChart(canvas, rcData, curves, deadband, midrc) {
          ctx.beginPath();
          ctx.moveTo(-500, -canvasHeightScale * rcCommandRawToDegreesPerSecond(1000, curve, midrc, deadband));
          for(var rcData = 1001; rcData<2000; rcData++) {
-        	ctx.lineTo(rcData-midrc, -canvasHeightScale * rcCommandRawToDegreesPerSecond(rcData, curve, midrc, deadband));
+        	ctx.lineTo(rcData-1500/*-midrc*/, -canvasHeightScale * rcCommandRawToDegreesPerSecond(rcData, curve, midrc, deadband));
 	 	 }
          ctx.stroke();
          ctx.restore();
@@ -367,7 +375,7 @@ function ExpoChart(canvas, rcData, curves, deadband, midrc) {
 
          ctx.beginPath();
          ctx.fillStyle = stickColor;
-         ctx.arc(rcData-midrc, -canvasHeightScale * rcCommandRawToDegreesPerSecond(rcData, curve, midrc, deadband), canvas.height / 40, 0, 2 * Math.PI);
+         ctx.arc(rcData-1500/*-midrc*/, -canvasHeightScale * rcCommandRawToDegreesPerSecond(rcData, curve, midrc, deadband), canvas.height / 40, 0, 2 * Math.PI);
          ctx.fill();
 
          
@@ -390,7 +398,7 @@ function ExpoChart(canvas, rcData, curves, deadband, midrc) {
     	drawAxisLabel(rcCommandMaxDegS, 0, 0 + fontHeight * 1.5, 'left');
     	drawAxisLabel('1000', 0, canvas.height, 'left');
     	drawAxisLabel('2000', canvas.width, canvas.height, 'right');
-    	drawAxisLabel(midrc, canvas.width/2, canvas.height, 'center');   	
+    	drawAxisLabel(midrc, (midrc-1000)/*canvas.width/2*/, canvas.height, 'center');
 
     };
 
@@ -412,7 +420,7 @@ function ExpoChart(canvas, rcData, curves, deadband, midrc) {
 		ctx.save();
 			ctx.clearRect(0, 0, canvas.width, canvas.height);
 			ctx.translate(canvas.width/2,canvas.height/2);
-			drawAxisLines();
+			drawAxisLines(midrc);
             for(var i=0; i<curves.length; i++) {
                 plotExpoCurve(curves[i], deadband, midrc);
                 plotStickPosition(rcData, curves[i], deadband, midrc);
