@@ -31,7 +31,7 @@
     <div class="container-fluid main-pane">
         <table class="rates">
             <tr>
-                <th class="col-md-3">Old Rates (RC11)</th>
+                <th class="col-md-3">Old Rates</th>
                 <th class="col-md-6">Chart</th>
                 <th class="col-md-3">New Rates (Current Master)</th>
             </tr>
@@ -40,19 +40,19 @@
                     <table class="old">
                         <tr>
                             <td>
-                                <span>rcRate</span><input type="number" id="rcRate-old" step="1" min="0" max="255" />
-                                <input type="range" id="rcRate-old-slider" value="100" min="0" max="255" step="1" title=""/>
+                                <span>rcRate / rcYawRate</span><input type="number" id="rcRate-old" step="0.01" min="0" max="2.55" />
+                                <input type="range" id="rcRate-old-slider" value="100" min="0" max="2.55" step="0.01" title=""/>
                             </td>
                         </tr>
                         <tr>
                             <td>
-                                <span>rcExpo</span><input type="number" id="rcExpo-old" step="1" min="0" max="100" />
-                                <input type="range" id="rcExpo-old-slider" value="0" min="0" max="100" step="1" title=""/>
+                                <span>rcExpo / rcYawExpo</span><input type="number" id="rcExpo-old" step="0.01" min="0" max="1.00" />
+                                <input type="range" id="rcExpo-old-slider" value="0" min="0" max="1.00" step="0.01" title=""/>
                             </td>
                         <tr>
                             <td>
-                                <span>Super Expo Rate</span><input type="number" id="axisRate-old" step="1" min="0" max="200" />
-                                <input type="range" id="axisRate-old-slider" value="0" min="0" max="200" step="1" title=""/>
+                                <span>Super Expo Rate</span><input type="number" id="axisRate-old" step="0.01" min="0" max="2.00" />
+                                <input type="range" id="axisRate-old-slider" value="0" min="0" max="2.00" step="0.01" title=""/>
                             </td>
                         </tr>
                         <tr><td><label><input id="superExpoActive-old" class="ios-switch" type="checkbox"/><div><div></div></div><span>Super Expo</span></label></td></tr>
@@ -76,20 +76,20 @@
                         </tr>
                         <tr>
                             <td>
-                                <span>rcRate</span><input type="number" id="rcRate-new" step="1" min="0" max="255" />
-                                <input type="range" id="rcRate-new-slider" value="100" min="0" max="255" step="1" title=""/>
+                                <span>rcRate / rcYawRate</span><input type="number" id="rcRate-new" step="0.01" min="0" max="2.55" />
+                                <input type="range" id="rcRate-new-slider" value="100" min="0" max="2.55" step="0.01" title=""/>
                             </td>
                         </tr>
                         <tr>
                             <td>
-                                <span>rcExpo</span><input type="number" id="rcExpo-new" step="1" min="0" max="100" />
-                                <input type="range" id="rcExpo-new-slider" value="0" min="0" max="100" step="1" title=""/>
+                                <span>rcExpo / rcYawExpo</span><input type="number" id="rcExpo-new" step="0.01" min="0" max="1.00" />
+                                <input type="range" id="rcExpo-new-slider" value="0" min="0" max="1.00" step="0.01" title=""/>
                             </td>
                         </tr>
                         <tr>
                             <td>
-                                <span>sRate</span><input type="number" id="axisRate-new" step="1" min="0" max="200" />
-                                <input type="range" id="axisRate-new-slider" value="0" min="0" max="200" step="1" title=""/>
+                                <span>sRate</span><input type="number" id="axisRate-new" step="0.01" min="0" max="2.00" />
+                                <input type="range" id="axisRate-new-slider" value="0" min="0" max="2.00" step="0.01" title=""/>
                             </td>
                         </tr>
                     </table>

@@ -13,7 +13,7 @@ function ChartTest() {
             {
                 version         : 2.9, // betaflight version
                 rcRate          : 100,
-                rcExpo          : 10,
+                rcExpo          : 0,
                 axisRate        : 70,
                 superExpoActive : true,
                 controller      : null,
@@ -33,7 +33,7 @@ function ChartTest() {
         ];
 
     // Common Values
-    var rcData = 1768;
+    var rcData = 2000;
 	var deadband = 0;
 	var midrc = 1500;
 
@@ -76,20 +76,20 @@ function ChartTest() {
 
     function convertLocaltoUI() {
 
-        oldElements.rcRate.val(curves[0].rcRate);
-        oldElements.rcRateSlider.val(curves[0].rcRate);
-        oldElements.rcExpo.val(curves[0].rcExpo);
-        oldElements.rcExpoSlider.val(curves[0].rcExpo);
-        oldElements.axisRate.val(curves[0].axisRate);
-        oldElements.axisRateSlider.val(curves[0].axisRate);
+        oldElements.rcRate.val(curves[0].rcRate/100);
+        oldElements.rcRateSlider.val(curves[0].rcRate/100);
+        oldElements.rcExpo.val(curves[0].rcExpo/100);
+        oldElements.rcExpoSlider.val(curves[0].rcExpo/100);
+        oldElements.axisRate.val(curves[0].axisRate/100);
+        oldElements.axisRateSlider.val(curves[0].axisRate/100);
         oldElements.superExpoActive.prop('checked', curves[0].superExpoActive);
 
-        newElements.rcRate.val(curves[1].rcRate);
-        newElements.rcRateSlider.val(curves[1].rcRate);
-        newElements.rcExpo.val(curves[1].rcExpo);
-        newElements.rcExpoSlider.val(curves[1].rcExpo);
-        newElements.axisRate.val(curves[1].axisRate);
-        newElements.axisRateSlider.val(curves[1].axisRate);
+        newElements.rcRate.val(curves[1].rcRate/100);
+        newElements.rcRateSlider.val(curves[1].rcRate/100);
+        newElements.rcExpo.val(curves[1].rcExpo/100);
+        newElements.rcExpoSlider.val(curves[1].rcExpo/100);
+        newElements.axisRate.val(curves[1].axisRate/100);
+        newElements.axisRateSlider.val(curves[1].axisRate/100);
         newElements.controller.val(curves[1].controller);
 
         commonElements.rcData.val(rcData);
@@ -101,14 +101,14 @@ function ChartTest() {
 
     function convertUItoLocal() {
 
-        curves[0].rcRate = parseInt(oldElements.rcRate.val());
-        curves[0].rcExpo = parseInt(oldElements.rcExpo.val());
-        curves[0].axisRate = parseInt(oldElements.axisRate.val());
+        curves[0].rcRate = parseFloat(oldElements.rcRate.val()) * 100;
+        curves[0].rcExpo = parseFloat(oldElements.rcExpo.val()) * 100;
+        curves[0].axisRate = parseFloat(oldElements.axisRate.val()) * 100;
         curves[0].superExpoActive = oldElements.superExpoActive.is(":checked");
 
-        curves[1].rcRate = parseInt(newElements.rcRate.val());
-        curves[1].rcExpo = parseInt(newElements.rcExpo.val());
-        curves[1].axisRate = parseInt(newElements.axisRate.val());
+        curves[1].rcRate = parseFloat(newElements.rcRate.val()) * 100;
+        curves[1].rcExpo = parseFloat(newElements.rcExpo.val()) * 100;
+        curves[1].axisRate = parseFloat(newElements.axisRate.val()) * 100;
         curves[1].controller = parseInt(newElements.controller.val());
 
         rcData = parseInt(commonElements.rcData.val());
@@ -129,48 +129,48 @@ function ChartTest() {
     oldElements.rcRateSlider.on('input',
         function (e) {
             e.preventDefault();
-            curves[0].rcRate = parseInt(oldElements.rcRateSlider.val());
-            oldElements.rcRate.val(curves[0].rcRate);
+            curves[0].rcRate = parseFloat(oldElements.rcRateSlider.val())*100;
+            oldElements.rcRate.val(curves[0].rcRate/100);
             expoChart.refresh(rcData, curves, deadband, midrc);
         });
 
     oldElements.rcExpoSlider.on('input',
         function (e) {
             e.preventDefault();
-            curves[0].rcExpo = parseInt(oldElements.rcExpoSlider.val());
-            oldElements.rcExpo.val(curves[0].rcExpo);
+            curves[0].rcExpo = parseFloat(oldElements.rcExpoSlider.val())*100;
+            oldElements.rcExpo.val(curves[0].rcExpo/100);
             expoChart.refresh(rcData, curves, deadband, midrc);
         });
 
     oldElements.axisRateSlider.on('input',
         function (e) {
             e.preventDefault();
-            curves[0].axisRate = parseInt(oldElements.axisRateSlider.val());
-            oldElements.axisRate.val(curves[0].axisRate);
+            curves[0].axisRate = parseFloat(oldElements.axisRateSlider.val())*100;
+            oldElements.axisRate.val(curves[0].axisRate/100);
             expoChart.refresh(rcData, curves, deadband, midrc);
         });
 
     newElements.rcRateSlider.on('input',
         function (e) {
             e.preventDefault();
-            curves[1].rcRate = parseInt(newElements.rcRateSlider.val());
-            newElements.rcRate.val(curves[1].rcRate);
+            curves[1].rcRate = parseFloat(newElements.rcRateSlider.val())*100;
+            newElements.rcRate.val(curves[1].rcRate/100);
             expoChart.refresh(rcData, curves, deadband, midrc);
         });
 
     newElements.rcExpoSlider.on('input',
         function (e) {
             e.preventDefault();
-            curves[1].rcExpo = parseInt(newElements.rcExpoSlider.val());
-            newElements.rcExpo.val(curves[1].rcExpo);
+            curves[1].rcExpo = parseFloat(newElements.rcExpoSlider.val())*100;
+            newElements.rcExpo.val(curves[1].rcExpo/100);
             expoChart.refresh(rcData, curves, deadband, midrc);
         });
 
     newElements.axisRateSlider.on('input',
         function (e) {
             e.preventDefault();
-            curves[1].axisRate = parseInt(newElements.axisRateSlider.val());
-            newElements.axisRate.val(curves[1].axisRate);
+            curves[1].axisRate = parseFloat(newElements.axisRateSlider.val())*100;
+            newElements.axisRate.val(curves[1].axisRate/100);
             expoChart.refresh(rcData, curves, deadband, midrc);
         });
         
