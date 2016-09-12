@@ -5,6 +5,8 @@
 
 "use strict";
 
+const optional = false;
+
 function ChartTest() {
 	
 	var canvas = $("#graphCanvas").get(0);
@@ -16,8 +18,10 @@ function ChartTest() {
                 rcExpo          : 0,
                 axisRate        : 70,
                 superExpoActive : true,
+                yawActive       : null,
                 controller      : null,
                 rcExpoPwr       : null,
+                sRateWeight     : null,
                 color           : "rgba(0,0,200,0.9)" // blue
             },
             {
@@ -25,8 +29,10 @@ function ChartTest() {
                 rcRate          : 120,
                 rcExpo          : 0,
                 rcExpoPwr       : 3,
+                sRateWeight     : 100,
                 axisRate        : 0,
                 superExpoActive : null,
+                yawActive       : false,
                 controller      : 1,
                 color           : "rgba(0,200,0,0.9)" // green
             }
@@ -54,7 +60,10 @@ function ChartTest() {
             rcExpoSlider:       $('#rcExpo-new-slider'),
             axisRate:           $('#axisRate-new'),
             axisRateSlider:     $('#axisRate-new-slider'),
+            sRateWeight:        $('#sRateWeight-new'),
+            sRateWeightSlider:  $('#sRateWeight-new-slider'),
             controller:         $('#controller-new'),
+            yawActive:          $('#yawActive-new'),
         },
         commonElements = {
             rcData:             $('#rcData'),
@@ -90,7 +99,10 @@ function ChartTest() {
         newElements.rcExpoSlider.val(curves[1].rcExpo/100);
         newElements.axisRate.val(curves[1].axisRate/100);
         newElements.axisRateSlider.val(curves[1].axisRate/100);
+        newElements.sRateWeight.val(curves[1].sRateWeight/100);
+        newElements.sRateWeightSlider.val(curves[1].sRateWeight/100);
         newElements.controller.val(curves[1].controller);
+        newElements.yawActive.prop('checked', curves[1].yawActive);
 
         commonElements.rcData.val(rcData);
         commonElements.rcDataSlider.val(rcData);
@@ -110,12 +122,16 @@ function ChartTest() {
         curves[1].rcExpo = parseFloat(newElements.rcExpo.val()) * 100;
         curves[1].axisRate = parseFloat(newElements.axisRate.val()) * 100;
         curves[1].controller = parseInt(newElements.controller.val());
+        curves[1].yawActive = newElements.yawActive.is(":checked");
 
         rcData = parseInt(commonElements.rcData.val());
         deadband = parseInt(commonElements.deadband.val());
         midrc = parseInt(commonElements.midrc.val());
 
     };
+
+    // Hide optional components
+    (optional)?$(".optional").show():$(".optional").hide();
 
     /* add slider controls */
     commonElements.rcDataSlider.on('input',
@@ -173,7 +189,15 @@ function ChartTest() {
             newElements.axisRate.val(curves[1].axisRate/100);
             expoChart.refresh(rcData, curves, deadband, midrc);
         });
-        
+
+    newElements.sRateWeightSlider.on('input',
+        function (e) {
+            e.preventDefault();
+            curves[1].sRateWeight = parseFloat(newElements.sRateWeightSlider.val())*100;
+            newElements.sRateWeight.val(curves[1].sRateWeight/100);
+            expoChart.refresh(rcData, curves, deadband, midrc);
+        });
+
     $('input[type="number"]').on('change',
         function (e) {
             convertUItoLocal();
@@ -193,6 +217,11 @@ function ChartTest() {
         expoChart.refresh(rcData, curves, deadband, midrc);
     });
 
+
+    newElements.yawActive.click(function(e) {
+        convertUItoLocal();
+        expoChart.refresh(rcData, curves, deadband, midrc);
+    });
 };
 
 $(document).off('.data-api');
@@ -252,7 +281,22 @@ function ExpoChart(canvas, rcData, curves, deadband, midrc) {
 
                 if (curve.axisRate) {
                     rcSuperfactor = 1.0 / (constrain(1.0 - (Math.abs(rcCommandf) * (curve.axisRate / 100.0)), 0.01, 1.00));
-                    angleRate *= rcSuperfactor;
+                    if (optional) {
+                        if (curve.controller == 1 /* BETAFLIGHT */) {
+                            var ptermSetpointRate = constrain(angleRate * rcSuperfactor, -1998.0, 1998.0);
+                            if (curve.sRateWeight < 100 && !curve.yawActive) {
+                                const pWeight = curve.sRateWeight / 100.0;
+                                angleRate = angleRate + (pWeight * ptermSetpointRate - angleRate);
+                            } else {
+                                angleRate = ptermSetpointRate;
+                            }
+                        } else {
+                            angleRate *= rcSuperfactor;
+                       }
+                    } else
+                    {
+                        angleRate *= rcSuperfactor; // remove this if you want to display the pterm weighting.
+                    }
                 }
 
                 if (curve.controller == 0 /* LEGACY */)
