@@ -367,9 +367,18 @@ function ExpoChart(canvas, rcData, curves, deadband, midrc) {
 	};
 
     var ctx = canvas.getContext("2d");
-    ctx.translate(0.5, 0.5);
+    ctx.translate(0.5, 0.5); // set the origin to the center of the canvas
 
     this.balloon = function(units, fontSize, color, fill, border, align) {
+
+        /**
+            units is the engineering units
+            fontSize is the fontheight
+            color is the text color of the label
+            fill is the color of the balloon
+            border is the color of the balloon border
+            align set to "right" for the label to appear LEFT of the x coordinate.
+        **/
 
         const DEFAULT_FONT_FACE     = "pt Verdana, Arial, sans-serif";
         const DEFAULT_FONT_SIZE     = 24;
@@ -379,15 +388,15 @@ function ExpoChart(canvas, rcData, curves, deadband, midrc) {
         const DEFAULT_TEXT_ALIGN    = "center";
         const DEFAULT_TEXT_LABEL    = "none";
         const DEFAULT_OFFSET        = 50;       // balloon label is drawn this far left/right of the x coordinate (balloon pointer goes to the x coordinate)
-        const DEFAULT_ALIGN         = "right";  // whether the ballon label is drawn to the right or left of the pointer; right align puts the label to the left of the x coord
+        const DEFAULT_ALIGN         = "right";  // whether the balloon label is drawn to the right or left of the pointer; right align puts the label to the left of the x coord
 
         var
             units       = units,
-            fontSize    = fontSize,
-            color       = color,
-            fill        = fill,
-            border      = border,
-            align       = align,
+            fontSize    = fontSize || DEFAULT_FONT_SIZE,
+            color       = color || DEFAULT_TEXT_COLOR,
+            fill        = fill || DEFAULT_COLOR,
+            border      = border || DEFAULT_BORDER,
+            align       = align || DEFAULT_ALIGN,
             x           = null,
             y           = null,
             width       = null,
@@ -400,7 +409,7 @@ function ExpoChart(canvas, rcData, curves, deadband, midrc) {
 
             if(align=='left') x += DEFAULT_OFFSET;
 
-            if (typeof stroke == 'undefined') {
+            if (typeof stroke === 'undefined') {
                 stroke = true;
             }
             if (typeof radius === 'undefined') {
@@ -453,35 +462,13 @@ function ExpoChart(canvas, rcData, curves, deadband, midrc) {
             ctx.fillText(label, x, y);
         }
 
-
-        this.boundingBox = function() {
-            // return the corners of the box that completely encloses the balloon
-            return {left: (x), right: (x+width), top: (y), bottom: (y+height)};
-        };
-
-        this.collidesWith = function(externalBoundingBox) {
-            // return true when any point of the supplied externalBoundingBox is inside this balloons bounding box
-            return (
-                (externalBoundingBox.left >= this.boundingBox.left && externalBoundingBox.left <= this.boundingBox.right && externalBoundingBox.top >= this.boundingBox.top && externalBoundingBox.top <= this.boundingBox.bottom) ||
-                (externalBoundingBox.right >= this.boundingBox.left && externalBoundingBox.right <= this.boundingBox.right && externalBoundingBox.top >= this.boundingBox.top && externalBoundingBox.top <= this.boundingBox.bottom) ||
-                (externalBoundingBox.left >= this.boundingBox.left && externalBoundingBox.left <= this.boundingBox.right && externalBoundingBox.bottom >= this.boundingBox.top && externalBoundingBox.bottom <= this.boundingBox.bottom) ||
-                (externalBoundingBox.right >= this.boundingBox.left && externalBoundingBox.right <= this.boundingBox.right && externalBoundingBox.bottom >= this.boundingBox.top && externalBoundingBox.bottom <= this.boundingBox.bottom)
-            );
-        };
-
         this.draw = function (ctx, x, y, value, range) {
 
             /**
              ctx is the canvas context
+             x is where the point of the balloon goes, y is the vertical center of the balloon
              value is the balloon value to display
-             units is the engineering units
              range is the (maximum value - minimum value) that is displayed on the canvas
-             fontSize is the fontheight
-             x, y is the center of the balloon
-             color is the text color of the label
-             fill is the color of the balloon
-             border is the color of the balloon border
-             align set to "right" for the label to appear LEFT of the x coordinate.
              **/
 
             var label = (value + ' ' + units) || DEFAULT_TEXT_LABEL;
@@ -508,22 +495,24 @@ function ExpoChart(canvas, rcData, curves, deadband, midrc) {
     };
     this.balloons = {
 
+        // units, fontSize, text color, background color, outline color, alignment (left means that the balloon will appear on the right of the x coordinate)
         oldRates : new this.balloon(" deg/s", 24, "rgba(0,0,0,1)", "rgba(0,0,255,0.4)", "rgba(0,0,255,1)", "left"),
         newRates : new this.balloon(" deg/s", 24, "rgba(0,0,0,1)", "rgba(0,200,0,0.4)", "rgba(0,200,0,1)", "right"),
 
-        maxOldRatesValue : null,
+        maxOldRatesValue : null, // current value that appears in the label (i.e. the max angular vel for old style rates)
         maxNewRatesValue : null,
-        valueRange : null,
+        valueRange : null,       // 2 * the max angular velocity.
 
-        plot: function(oldRate, newRate, rangeRate) { // old rate calcualtion maximum value, new rate maximum value and current chart range in deg/s
+        plot: function(oldRate, newRate, rangeRate) { // old rate calculation maximum value, new rate maximum value and current chart range in deg/s
 
             this.maxOldRatesValue = oldRate;
             this.maxNewRatesValue  = newRate;
             this.valueRange = rangeRate;
 
             // Actually plot the two balloons on the rate curve.
+            // x is in the range -500 to +500, y is in deg/s, range is in deg/s and represents (2 * maxAngularVel)
             this.oldRates.draw(ctx, -500, -this.maxOldRatesValue, this.maxOldRatesValue.toFixed(0), this.valueRange);  // (canvas context, x, y, value, range)
-            this.newRates.draw(ctx,  500,  this.maxNewRatesValue, this.maxNewRatesValue.toFixed(0), this.valueRange);  // (canvas context, x, y, value, range)
+            this.newRates.draw(ctx, +500,  this.maxNewRatesValue, this.maxNewRatesValue.toFixed(0), this.valueRange);  // (canvas context, x, y, value, range)
         }
 
     };
