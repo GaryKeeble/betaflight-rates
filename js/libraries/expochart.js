@@ -369,7 +369,7 @@ function ExpoChart(canvas, rcData, curves, deadband, midrc) {
     var ctx = canvas.getContext("2d");
     ctx.translate(0.5, 0.5);
 
-    function balloon(units, fontSize, color, fill, border, align) {
+    this.balloon = function(units, fontSize, color, fill, border, align) {
 
         const DEFAULT_FONT_FACE     = "pt Verdana, Arial, sans-serif";
         const DEFAULT_FONT_SIZE     = 24;
@@ -505,11 +505,11 @@ function ExpoChart(canvas, rcData, curves, deadband, midrc) {
             drawLabel(label, this.x + this.width/2 + ((align=="left")?DEFAULT_OFFSET:0), this.y + (this.height - fontSize)/2, fontSize, "center", color, align);
             ctx.restore();
         }
-    }
-    var balloons = {
+    };
+    this.balloons = {
 
-        oldRates : new balloon(" deg/s", 24, "rgba(0,0,0,1)", "rgba(0,0,255,0.4)", "rgba(0,0,255,1)", "left"),
-        newRates : new balloon(" deg/s", 24, "rgba(0,0,0,1)", "rgba(0,200,0,0.4)", "rgba(0,200,0,1)", "right"),
+        oldRates : new this.balloon(" deg/s", 24, "rgba(0,0,0,1)", "rgba(0,0,255,0.4)", "rgba(0,0,255,1)", "left"),
+        newRates : new this.balloon(" deg/s", 24, "rgba(0,0,0,1)", "rgba(0,200,0,0.4)", "rgba(0,200,0,1)", "right"),
 
         maxOldRatesValue : null,
         maxNewRatesValue : null,
@@ -520,11 +520,13 @@ function ExpoChart(canvas, rcData, curves, deadband, midrc) {
             this.maxOldRatesValue = oldRate;
             this.maxNewRatesValue  = newRate;
             this.valueRange = rangeRate;
+
+            // Actually plot the two balloons on the rate curve.
             this.oldRates.draw(ctx, -500, -this.maxOldRatesValue, this.maxOldRatesValue.toFixed(0), this.valueRange);  // (canvas context, x, y, value, range)
             this.newRates.draw(ctx,  500,  this.maxNewRatesValue, this.maxNewRatesValue.toFixed(0), this.valueRange);  // (canvas context, x, y, value, range)
         }
 
-    }
+    };
 
     //Draw an origin line for a graph (at the origin and spanning the window)
     function drawAxisLines(midrc) {
@@ -629,7 +631,7 @@ function ExpoChart(canvas, rcData, curves, deadband, midrc) {
                 plotStickPosition(rcData, curves[i], deadband, midrc);
             }
 
-            balloons.plot(rcCommandRawToDegreesPerSecond(2000, curves[0], midrc, deadband),     // Old Rate Maximum value
+            this.balloons.plot(rcCommandRawToDegreesPerSecond(2000, curves[0], midrc, deadband),     // Old Rate Maximum value
                           rcCommandRawToDegreesPerSecond(2000, curves[1], midrc, deadband),     // New Rate Maximum Value
                           Math.abs(parseInt(rcCommandMaxDegS) - parseInt(rcCommandMinDegS)));   // Range shown on the chart
 
