@@ -39,7 +39,7 @@ function ChartTest() {
         ];
 
     // Common Values
-    var rcData = 2000;
+    var rcData = 1750;
 	var deadband = 0;
 	var midrc = 1500;
 
@@ -367,7 +367,155 @@ function ExpoChart(canvas, rcData, curves, deadband, midrc) {
 	};
 
     var ctx = canvas.getContext("2d");
-    ctx.translate(0.5, 0.5);
+    ctx.translate(0.5, 0.5); // set the origin to the center of the canvas
+
+    this.balloon = function(units, fontSize, color, fill, border, align) {
+
+        /**
+            units is the engineering units
+            fontSize is the fontheight
+            color is the text color of the label
+            fill is the color of the balloon
+            border is the color of the balloon border
+            align set to "right" for the label to appear LEFT of the x coordinate.
+        **/
+
+        const DEFAULT_FONT_FACE     = "pt Verdana, Arial, sans-serif";
+        const DEFAULT_FONT_SIZE     = 24;
+        const DEFAULT_COLOR         = "rgba(255,102,102,0.5)";
+        const DEFAULT_BORDER        = "rgba(255,102,102,1.0)";
+        const DEFAULT_TEXT_COLOR    = "rgba(0,0,0,1.0)";
+        const DEFAULT_TEXT_ALIGN    = "center";
+        const DEFAULT_TEXT_LABEL    = "none";
+        const DEFAULT_OFFSET        = 50;       // balloon label is drawn this far left/right of the x coordinate (balloon pointer goes to the x coordinate)
+        const DEFAULT_ALIGN         = "right";  // whether the balloon label is drawn to the right or left of the pointer; right align puts the label to the left of the x coord
+
+        var
+            units       = units,
+            fontSize    = fontSize || DEFAULT_FONT_SIZE,
+            color       = color || DEFAULT_TEXT_COLOR,
+            fill        = fill || DEFAULT_COLOR,
+            border      = border || DEFAULT_BORDER,
+            align       = align || DEFAULT_ALIGN,
+            x           = null,
+            y           = null,
+            width       = null,
+            height      = null;
+
+        function drawBalloonBackground(ctx, x, y, width, height, radius, fill, stroke, align) {
+
+            ctx.fillStyle   = fill      || DEFAULT_COLOR ;
+            ctx.strokeStyle = stroke    || DEFAULT_BORDER;
+
+            if(align=='left') x += DEFAULT_OFFSET;
+
+            if (typeof stroke === 'undefined') {
+                stroke = true;
+            }
+            if (typeof radius === 'undefined') {
+                radius = 5;
+            }
+            if (typeof radius === 'number') {
+                radius = {tl: radius, tr: radius, br: radius, bl: radius};
+            } else {
+                var defaultRadius = {tl: 0, tr: 0, br: 0, bl: 0};
+                for (var side in defaultRadius) {
+                    radius[side] = radius[side] || defaultRadius[side];
+                }
+            }
+
+            var pointerLength =  (height - radius.br - radius.tr) / 6;
+
+            ctx.beginPath();
+            ctx.moveTo(x + radius.tl, y);
+            ctx.lineTo(x + width - radius.tr, y);
+            ctx.quadraticCurveTo(x + width, y, x + width, y + radius.tr);
+
+            if(align=='right') {
+                ctx.lineTo(x + width, y + radius.tr + pointerLength);
+                ctx.lineTo(x + width + DEFAULT_OFFSET, y + height / 2);
+                ctx.lineTo(x + width, y + height - radius.br - pointerLength);
+            }
+            ctx.lineTo(x + width, y + height - radius.br);
+
+            ctx.quadraticCurveTo(x + width, y + height, x + width - radius.br, y + height);
+            ctx.lineTo(x + radius.bl, y + height);
+            ctx.quadraticCurveTo(x, y + height, x, y + height - radius.bl);
+
+            if(align=='left') {
+                ctx.lineTo(x, y + height - radius.bl - pointerLength);
+                ctx.lineTo(x - DEFAULT_OFFSET, y + height / 2);
+                ctx.lineTo(x, y + radius.tl - pointerLength);
+            }
+            ctx.lineTo(x, y + radius.tl);
+
+            ctx.quadraticCurveTo(x, y, x + radius.tl, y);
+            ctx.closePath();
+
+            ctx.fill();
+            ctx.stroke();
+        }
+        function drawLabel(label, x, y, fontSize, align, color) {
+            ctx.font        = (fontSize || DEFAULT_FONT_SIZE) + DEFAULT_FONT_FACE;
+            ctx.fillStyle   = color || DEFAULT_TEXT_COLOR ; // default is black
+            ctx.textAlign   = align || DEFAULT_TEXT_ALIGN;  // default is to center
+            ctx.fillText(label, x, y);
+        }
+
+        this.draw = function (ctx, x, y, value, range) {
+
+            /**
+             ctx is the canvas context
+             x is where the point of the balloon goes, y is the vertical center of the balloon
+             value is the balloon value to display
+             range is the (maximum value - minimum value) that is displayed on the canvas
+             **/
+
+            var label = (value + ' ' + units) || DEFAULT_TEXT_LABEL;
+
+            var canvasHeightScale = ctx.canvas.height / range;
+
+            ctx.save();
+
+            // calculate the drawing parameters
+            this.width      = (ctx.measureText(label).width * 1.2);
+            this.height     = fontSize * 2 || DEFAULT_FONT_SIZE;
+            this.x          = x - ((align=="right")?(this.width + DEFAULT_OFFSET):0);
+            this.y          = -canvasHeightScale * y || 0;
+
+            // prevent label going off page
+            if(this.y < (-ctx.canvas.height + this.height)/2 ) this.y = (-ctx.canvas.height + this.height)/2;
+            if(this.y > (+ctx.canvas.height - this.height)/2 ) this.y = (+ctx.canvas.height - this.height)/2;
+
+            // draw the balloon and its label
+            drawBalloonBackground(ctx, this.x, this.y - this.height/2, this.width, this.height, 14, fill, border, align);
+            drawLabel(label, this.x + this.width/2 + ((align=="left")?DEFAULT_OFFSET:0), this.y + (this.height - fontSize)/2, fontSize, "center", color, align);
+            ctx.restore();
+        }
+    };
+    this.balloons = {
+
+        // units, fontSize, text color, background color, outline color, alignment (left means that the balloon will appear on the right of the x coordinate)
+        oldRates : new this.balloon(" deg/s", 24, "rgba(0,0,0,1)", "rgba(0,0,255,0.4)", "rgba(0,0,255,1)", "left"),
+        newRates : new this.balloon(" deg/s", 24, "rgba(0,0,0,1)", "rgba(0,200,0,0.4)", "rgba(0,200,0,1)", "right"),
+
+        maxOldRatesValue : null, // current value that appears in the label (i.e. the max angular vel for old style rates)
+        maxNewRatesValue : null,
+        valueRange : null,       // 2 * the max angular velocity.
+
+        plot: function(oldRate, newRate, rangeRate) { // old rate calculation maximum value, new rate maximum value and current chart range in deg/s
+
+            this.maxOldRatesValue = oldRate;
+            this.maxNewRatesValue  = newRate;
+            this.valueRange = rangeRate;
+
+            // Actually plot the two balloons on the rate curve.
+            // x is in the range -500 to +500, y is in deg/s, range is in deg/s and represents (2 * maxAngularVel)
+            this.oldRates.draw(ctx, -500, -this.maxOldRatesValue, this.maxOldRatesValue.toFixed(0), this.valueRange);  // (canvas context, x, y, value, range)
+            this.newRates.draw(ctx, +500,  this.maxNewRatesValue, this.maxNewRatesValue.toFixed(0), this.valueRange);  // (canvas context, x, y, value, range)
+        }
+
+    };
 
     //Draw an origin line for a graph (at the origin and spanning the window)
     function drawAxisLines(midrc) {
@@ -427,7 +575,7 @@ function ExpoChart(canvas, rcData, curves, deadband, midrc) {
 		
 	};
     function drawAxisLabel(axisLabel, x, y, align, color) {
-        ctx.font = fontFace;
+
         ctx.fillStyle = color || axisLabelColor ;
         if(align!=null) {
             ctx.textAlign = align;
@@ -438,14 +586,14 @@ function ExpoChart(canvas, rcData, curves, deadband, midrc) {
         ctx.fillText(axisLabel, x, y);
     };
     function drawAxisLabels(midrc) {
-    	
-    	drawAxisLabel(rcCommandMaxDegS, 0, 0 + fontHeight * 1.5, 'left');
+
+        ctx.font = fontFace;
+        drawAxisLabel(rcCommandMaxDegS, 0, 0 + fontHeight * 1.5, 'left');
     	drawAxisLabel('1000', 0, canvas.height, 'left');
     	drawAxisLabel('2000', canvas.width, canvas.height, 'right');
     	drawAxisLabel(midrc, (midrc-1000)/*canvas.width/2*/, canvas.height, 'center');
 
     };
-
     function drawCurveValue(rcData, curve, deadband, midrc, x, y, align) {
         var rcRate          = curve.rcRate || 100,
             rcExpo          = curve.rcExpo || 0,
@@ -455,13 +603,15 @@ function ExpoChart(canvas, rcData, curves, deadband, midrc) {
 
         drawAxisLabel(rcCommandRawToDegreesPerSecond(rcData, curve, midrc, deadband).toFixed(0) + " deg/s", x,y, align, curve.color);
     }
-    
+
+
 	// Public Functions
 	this.refresh = function (rcData, curves, deadband, midrc){
         
 		calculateDrawingParameters(curves, deadband, midrc);
 
 		ctx.save();
+            // Scaled in real deg/s units
 			ctx.clearRect(0, 0, canvas.width, canvas.height);
 			ctx.translate(canvas.width/2,canvas.height/2);
 			drawAxisLines(midrc);
@@ -469,10 +619,19 @@ function ExpoChart(canvas, rcData, curves, deadband, midrc) {
                 plotExpoCurve(curves[i], deadband, midrc);
                 plotStickPosition(rcData, curves[i], deadband, midrc);
             }
-		ctx.restore();
-		drawAxisLabels(midrc);
-        drawCurveValue(rcData, curves[0], deadband, midrc, 0,canvas.height/2 + fontHeight/2, 'left')
-        drawCurveValue(rcData, curves[1], deadband, midrc, canvas.width,canvas.height/2 + fontHeight/2, 'right')
+
+            this.balloons.plot(rcCommandRawToDegreesPerSecond(2000, curves[0], midrc, deadband),     // Old Rate Maximum value
+                          rcCommandRawToDegreesPerSecond(2000, curves[1], midrc, deadband),     // New Rate Maximum Value
+                          Math.abs(parseInt(rcCommandMaxDegS) - parseInt(rcCommandMinDegS)));   // Range shown on the chart
+
+
+        ctx.restore();
+
+        // Scaled in real canvas units
+        drawAxisLabels(midrc);
+        drawCurveValue(rcData, curves[0], deadband, midrc, 0,canvas.height/2 + fontHeight/2, 'left');
+        drawCurveValue(rcData, curves[1], deadband, midrc, canvas.width,canvas.height/2 + fontHeight/2, 'right');
+
 	};
 
     // Initialisation Code
@@ -482,7 +641,8 @@ function ExpoChart(canvas, rcData, curves, deadband, midrc) {
 
 	var that = this;
 	that.refresh(rcData, curves, deadband, midrc);
-	
+    that.refresh(rcData, curves, deadband, midrc); // fix it so the labels appear correctly
+
 
 }
 
